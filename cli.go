@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/shawwwn/gole/s5"
+	"github.com/mac-vz/gole/s5"
 )
 
 type Config interface {

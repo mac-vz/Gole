@@ -1,4 +1,4 @@
-module github.com/shawwwn/gole
+module github.com/mac-vz/gole
 
 go 1.15
 
