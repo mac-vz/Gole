@@ -1,14 +1,14 @@
- package main
+package gole
 
 import (
 	"fmt"
+	"net"
 	"os"
 	"time"
-	"net"
 
+	"github.com/shawwwn/gole/s5"
 	kcp "github.com/xtaci/kcp-go"
 	"github.com/xtaci/smux"
-	"github.com/shawwwn/gole/s5"
 )
 
 // wrapper for StartServerTCP(), StartServerKCP(), and StartServerUDP()
@@ -36,7 +36,7 @@ func StartServerTCP(conn net.Conn, conf *TCPConfig) {
 	}
 
 	// Setup server side of smux
-	var interval int = g_timeout/3
+	var interval int = g_timeout / 3
 	interval = bound(interval, 1, 10)
 	smuxConfig := smux.DefaultConfig()
 	smuxConfig.Version = 1
@@ -145,7 +145,7 @@ func StartServerKCP(conn net.PacketConn, conf *UDPConfig) {
 	kconn.SetACKNoDelay(kconf.AckNodelay)
 
 	// Setup server side of smux
-	var interval int = g_timeout/3
+	var interval int = g_timeout / 3
 	interval = bound(interval, 1, 10)
 	smuxConfig := smux.DefaultConfig()
 	smuxConfig.Version = 1

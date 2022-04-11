@@ -1,24 +1,23 @@
-package main
+package gole
 
 import (
+	"crypto/sha1"
 	"errors"
-	"time"
 	"net"
 	"syscall"
-	"crypto/sha1"
+	"time"
 
 	xor "github.com/templexxx/xorsimd"
 	"golang.org/x/crypto/pbkdf2"
 )
 
-
-
 type EConnXor struct {
-	conn net.Conn
-	key []byte
+	conn   net.Conn
+	key    []byte
 	key_ri int // key read index
 	key_wi int // key write index
 }
+
 func (econn *EConnXor) Conn() net.Conn {
 	return econn.conn
 }
@@ -27,12 +26,12 @@ func (econn *EConnXor) Read(b []byte) (n int, err error) {
 
 	// stream decrypt
 	sz := n
-	for i:=0; i<sz; {
+	for i := 0; i < sz; {
 		ct := xor.Bytes(b[i:n], b[i:n], econn.key[econn.key_ri:])
 		if ct == 0 {
 			break
 		}
-		econn.key_ri = (econn.key_ri+ct) % len(econn.key)
+		econn.key_ri = (econn.key_ri + ct) % len(econn.key)
 		i += ct
 	}
 
@@ -42,12 +41,12 @@ func (econn *EConnXor) Write(b []byte) (n int, err error) {
 
 	// stream encrypt
 	sz := len(b)
-	for i:=0; i<sz; {
+	for i := 0; i < sz; {
 		ct := xor.Bytes(b[i:], b[i:], econn.key[econn.key_wi:])
 		if ct == 0 {
 			break
 		}
-		econn.key_wi = (econn.key_wi+ct) % len(econn.key)
+		econn.key_wi = (econn.key_wi + ct) % len(econn.key)
 		i += ct
 	}
 
@@ -92,8 +91,9 @@ func (econn *EConnXor) SyscallConn() (syscall.RawConn, error) {
 
 type EPacketConnXor struct {
 	conn net.PacketConn
-	key []byte
+	key  []byte
 }
+
 func (econn *EPacketConnXor) Conn() net.Conn {
 	if nc, ok := econn.conn.(net.Conn); ok {
 		return nc
@@ -168,7 +168,6 @@ func (econn *EPacketConnXor) RemoteAddr() net.Addr {
 	}
 	return nil
 }
-
 
 func NewEConn(conn net.Conn, enc, key string) net.Conn {
 	k := pbkdf2.Key([]byte(key), []byte("saltybiscuit"), 64, 4096, sha1.New)

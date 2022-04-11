@@ -1,14 +1,14 @@
-package main
+package gole
 
 import (
-	"os"
-	"net"
-	"fmt"
-	"time"
-	"math/rand"
-	"sync"
 	"context"
 	"errors"
+	"fmt"
+	"math/rand"
+	"net"
+	"os"
+	"sync"
+	"time"
 
 	"golang.org/x/net/ipv4"
 )
@@ -32,12 +32,12 @@ func PunchTCP(conf *TCPConfig) (net.Conn, error) {
 	var thru bool = false
 
 	// ~2mins timeout on retries
-	for i:=0; i<60; i++ {
+	for i := 0; i < 60; i++ {
 		conn, err = net.DialTCP("tcp", conf.LAddr, conf.RAddr)
-		if (err != nil) {
-			ms := 1000+rand.Intn(2000)
-			perror(fmt.Sprintf("connect: failed, retry in %.2fs.", float32(ms)/1000), err);
-			time.Sleep(time.Duration(ms)*time.Millisecond);
+		if err != nil {
+			ms := 1000 + rand.Intn(2000)
+			perror(fmt.Sprintf("connect: failed, retry in %.2fs.", float32(ms)/1000), err)
+			time.Sleep(time.Duration(ms) * time.Millisecond)
 			continue
 		}
 
@@ -47,9 +47,9 @@ func PunchTCP(conf *TCPConfig) (net.Conn, error) {
 		}
 
 		msg := fmt.Sprintf("HELO-%d", os.Getpid())
-		PrintDbgf("send: %s\n", msg);
+		PrintDbgf("send: %s\n", msg)
 		_, err = conn.Write([]byte(msg))
-		if (err != nil) {
+		if err != nil {
 			perror("send() failed.", err)
 			return nil, err
 		}
@@ -79,9 +79,9 @@ func PunchTCP(conf *TCPConfig) (net.Conn, error) {
 }
 
 func sendMsgUDP(conn net.PacketConn, msg string, to_addr net.Addr) error {
-	PrintDbgf("send: %s\n", msg);
+	PrintDbgf("send: %s\n", msg)
 	_, err := conn.WriteTo([]byte(msg), to_addr)
-	if (err != nil) {
+	if err != nil {
 		perror("send() failed.", err)
 	}
 	conn.SetReadDeadline(time.Now().Add(5 * time.Second))
@@ -137,11 +137,11 @@ func PunchUDP(conf *UDPConfig) (net.Conn, error) {
 		defer wg.Done()
 
 		// ~2mins timeout on retries
-		for i:=1; i<=60; i++ {
+		for i := 1; i <= 60; i++ {
 			err = sendMsgUDP(conn, msg, conf.RAddr)
-			ms := time.Duration(1000+rand.Intn(2000))
+			ms := time.Duration(1000 + rand.Intn(2000))
 			select {
-			case <-time.After(ms*time.Millisecond):
+			case <-time.After(ms * time.Millisecond):
 			case <-ctx1.Done():
 				return
 			}
@@ -163,8 +163,12 @@ func PunchUDP(conf *UDPConfig) (net.Conn, error) {
 		helo, okay := false, false
 		defer func() {
 			PrintDbgf("receiver stopped\n")
-			if ! helo { wg.Done() }
-			if ! okay { wg.Done() }
+			if !helo {
+				wg.Done()
+			}
+			if !okay {
+				wg.Done()
+			}
 			conn.SetReadDeadline(time.Time{})
 		}()
 
@@ -211,13 +215,13 @@ func PunchUDP(conf *UDPConfig) (net.Conn, error) {
 			switch string(data[:4]) {
 			case "HELO":
 				sendMsgUDP(conn, "OKAY", conf.RAddr)
-				if ! helo {
+				if !helo {
 					helo = true
 					wg.Done()
 				}
 			case "OKAY":
 				sendDone()
-				if ! okay {
+				if !okay {
 					okay = true
 					wg.Done()
 				}
@@ -226,16 +230,14 @@ func PunchUDP(conf *UDPConfig) (net.Conn, error) {
 	}()
 
 	wg.Wait()
-	close(recv_done) // stop receiver
+	close(recv_done)                 // stop receiver
 	conn.SetReadDeadline(time.Now()) // cancel ReadFrom()
 	time.Sleep(10)
 	PrintDbgf("Wait for remaining packets to clear ...\n")
-	time.Sleep(2*time.Second) // wait for packets to clear
+	time.Sleep(2 * time.Second) // wait for packets to clear
 	if fail != nil {
 		conn.Close()
 		return nil, fail
 	}
 	return conn.(net.Conn), nil
 }
-
-

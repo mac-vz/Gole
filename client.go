@@ -1,9 +1,9 @@
-package main
+package gole
 
 import (
 	"fmt"
-	"os"
 	"net"
+	"os"
 	"time"
 
 	kcp "github.com/xtaci/kcp-go"
@@ -35,7 +35,7 @@ func StartClientTCP(conn net.Conn, conf *TCPConfig) {
 	}
 
 	// Setup client side of smux
-	var interval int = g_timeout/3
+	var interval int = g_timeout / 3
 	interval = bound(interval, 1, 10)
 	smuxConfig := smux.DefaultConfig()
 	smuxConfig.Version = 1
@@ -67,7 +67,7 @@ func StartClientTCP(conn net.Conn, conf *TCPConfig) {
 	// periodic check if smux session is still alive
 	go func() {
 		for {
-			time.Sleep(2*time.Second)
+			time.Sleep(2 * time.Second)
 			if sess.IsClosed() {
 				lis.Close()
 				fmt.Printf("tunnel is closed\n")
@@ -137,10 +137,10 @@ func StartClientKCP(conn net.PacketConn, conf *UDPConfig) {
 	if err := kconn.SetWriteBuffer(kconf.SockBuf); err != nil {
 		perror("kconn.SetWriteBuffer() failed.", err)
 	}
-	kconn.Write([]byte{1,3,0,0,0,0,0,0}) // smux cmdNOP, let remote know we are connected
+	kconn.Write([]byte{1, 3, 0, 0, 0, 0, 0, 0}) // smux cmdNOP, let remote know we are connected
 
 	// Setup client side of smux
-	var interval int = g_timeout/3
+	var interval int = g_timeout / 3
 	interval = bound(interval, 1, 10)
 	smuxConfig := smux.DefaultConfig()
 	smuxConfig.Version = 1
@@ -172,7 +172,7 @@ func StartClientKCP(conn net.PacketConn, conf *UDPConfig) {
 	// periodic check if smux session is still alive
 	go func() {
 		for {
-			time.Sleep(2*time.Second)
+			time.Sleep(2 * time.Second)
 			if sess.IsClosed() {
 				lis.Close()
 				fmt.Printf("tunnel is closed\n")
@@ -230,7 +230,7 @@ func StartClientUDP(conn net.PacketConn, conf *UDPConfig) {
 	var client_addr *net.UDPAddr // address originates from client app
 	var sent chan struct{} = make(chan struct{}, 1)
 
-	// TODO: Below code for udp forwarding is just a prototype and should never 
+	// TODO: Below code for udp forwarding is just a prototype and should never
 	//       be used in a production system as it only allows one connection.
 	//       Needs udp muxing.
 
@@ -268,7 +268,7 @@ func StartClientUDP(conn net.PacketConn, conf *UDPConfig) {
 			}
 
 			// use the most recent client address
-			if client_addr==nil  {
+			if client_addr == nil {
 				client_addr = c_addr
 				PrintDbgf("connection from: %s\n", client_addr)
 				close(sent)

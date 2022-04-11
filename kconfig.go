@@ -1,4 +1,5 @@
-package main
+package gole
+
 //
 // KCP-related settings
 //
@@ -8,9 +9,9 @@ import (
 	"fmt"
 	"os"
 
+	"crypto/sha1"
 	kcp "github.com/xtaci/kcp-go"
 	"golang.org/x/crypto/pbkdf2"
-	"crypto/sha1"
 )
 
 type KCPConfig struct {
@@ -33,21 +34,21 @@ type KCPConfig struct {
 
 func getKCPConfig(path string) *KCPConfig {
 	kconf := KCPConfig{
-		"somekey",	// key
-		"xor",		// crypt
-		"fast2",	// mode
-		1350,		// mtu
-		1024,		// sndwnd
-		1024,		// rcvwnd
-		10,			// datashard
-		3,			// parityshard
-		0,			// dscp
-		false,		// acknodelay
-		0,			// nodelay
-		50,			// interval
-		0,			// resend
-		0,			// nc
-		4194304,	// sockbuf
+		"somekey", // key
+		"xor",     // crypt
+		"fast2",   // mode
+		1350,      // mtu
+		1024,      // sndwnd
+		1024,      // rcvwnd
+		10,        // datashard
+		3,         // parityshard
+		0,         // dscp
+		false,     // acknodelay
+		0,         // nodelay
+		50,        // interval
+		0,         // resend
+		0,         // nc
+		4194304,   // sockbuf
 		// 1,		// smuxver
 		// 4194304	// smuxbuf
 		// 2097152,	// streambuf

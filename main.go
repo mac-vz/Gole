@@ -1,4 +1,4 @@
-package main
+package gole
 
 import (
 	"fmt"
@@ -8,9 +8,9 @@ import (
 
 const VERSION string = "1.2.1"
 
-func main() {
+func Main(args []string) {
 	fmt.Printf("Gole v%s\n", VERSION)
-	conf := ParseConfig(os.Args)
+	conf := ParseConfig(args)
 	switch conf.getMode() {
 	case "tcp":
 		fmt.Printf("tunnel mode: TCP\n")

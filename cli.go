@@ -1,12 +1,12 @@
-package main
+package gole
 
 import (
 	"flag"
 	"fmt"
-	"os"
 	"net"
-	"strings"
+	"os"
 	"strconv"
+	"strings"
 
 	"github.com/shawwwn/gole/s5"
 )
@@ -19,21 +19,22 @@ type Config interface {
 }
 
 type S5Config struct {
-	bind *net.TCPAddr
+	bind   *net.TCPAddr
 	fwmark int
-	dscp int
+	dscp   int
 	dialer *net.Dialer
 }
 
 type TCPConfig struct {
-	Op string
-	LAddr *net.TCPAddr
-	RAddr *net.TCPAddr
+	Op      string
+	LAddr   *net.TCPAddr
+	RAddr   *net.TCPAddr
 	FwdAddr net.Addr
-	Enc string
-	Key string
-	S5Conf *S5Config
+	Enc     string
+	Key     string
+	S5Conf  *S5Config
 }
+
 func (c TCPConfig) getMode() string {
 	return "tcp"
 }
@@ -48,17 +49,18 @@ func (c TCPConfig) getOp() string {
 }
 
 type UDPConfig struct {
-	Op string
-	LAddr *net.UDPAddr
-	RAddr *net.UDPAddr
+	Op      string
+	LAddr   *net.UDPAddr
+	RAddr   *net.UDPAddr
 	FwdAddr net.Addr
-	Proto string
-	KConf string
-	TTL int
-	Enc string
-	Key string
-	S5Conf *S5Config
+	Proto   string
+	KConf   string
+	TTL     int
+	Enc     string
+	Key     string
+	S5Conf  *S5Config
 }
+
 func (c UDPConfig) getMode() string {
 	return "udp"
 }
@@ -74,6 +76,7 @@ func (c UDPConfig) getOp() string {
 
 var g_timeout int
 var g_verbose bool
+
 func ParseConfig(args []string) Config {
 	g_cmd := flag.NewFlagSet("tcp", flag.ExitOnError)
 	g_cmd.BoolVar(&g_verbose, "verbose", false, "turn on debug output")
@@ -128,7 +131,7 @@ func ParseConfig(args []string) Config {
 	l_endpt := args[1]
 	r_endpt := args[2]
 
-	mode := strings.ToLower(args[0]) 
+	mode := strings.ToLower(args[0])
 	switch mode {
 	case "tcp":
 		conf := new(TCPConfig)
@@ -136,7 +139,7 @@ func ParseConfig(args []string) Config {
 		conf.RAddr, _ = net.ResolveTCPAddr("tcp4", r_endpt)
 		tcp_cmd.Parse(args[3:])
 		conf.Op = *tcp_op
-		if ! contains(conf.Op, []string{"holepunch", "server", "client"}) {
+		if !contains(conf.Op, []string{"holepunch", "server", "client"}) {
 			perror("Unknown operation:", conf.Op)
 			os.Exit(1)
 		}
@@ -163,7 +166,7 @@ func ParseConfig(args []string) Config {
 		udp_cmd.Parse(args[3:])
 		conf.TTL = *udp_ttl
 		conf.Op = *udp_op
-		if ! contains(conf.Op, []string{"holepunch", "server", "client"}) {
+		if !contains(conf.Op, []string{"holepunch", "server", "client"}) {
 			perror("Unknown operation:", conf.Op)
 			os.Exit(1)
 		}
@@ -213,12 +216,12 @@ func parseSocks5(ss string) *S5Config {
 			ks := strings.SplitN(v, "=", 2)
 			key := ks[0]
 			val := ""
-			if len(ks)>1 {
+			if len(ks) > 1 {
 				val = ks[1]
 			}
 			switch key {
 			case "bind":
-				s5conf.bind = &net.TCPAddr{ IP: parseIP(val) }
+				s5conf.bind = &net.TCPAddr{IP: parseIP(val)}
 			case "fwmark":
 				s5conf.fwmark, _ = strconv.Atoi(val)
 			case "dscp":
@@ -247,7 +250,7 @@ func parseProto(ss string, conf *UDPConfig) {
 				ks := strings.SplitN(v, "=", 2)
 				key := ks[0]
 				val := ""
-				if len(ks)>1 {
+				if len(ks) > 1 {
 					val = ks[1]
 				}
 				if key == "conf" {
